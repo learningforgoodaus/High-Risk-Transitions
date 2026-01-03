@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High-Risk Transition Beehive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --brand-lavender: #C6B4D9;
+            --brand-purple: #513873;
+            --brand-midnight: #413659;
+            --brand-grey: #f6f5f8;
+            --brand-rose: #9C7F9D;
+        }
+
+        body {
+            background-color: var(--brand-grey);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--brand-midnight);
+            overflow-x: hidden;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 4-3-4 Honeycomb Formation */
+        .hive-viewport {
+            position: relative;
+            width: 100%;
+            max-width: 950px;
+            height: 580px;
+            margin: 10px auto;
+        }
+
+        .hexagon {
+            width: 180px;
+            height: 200px;
+            background-color: var(--brand-lavender);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 25px;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .hexagon .content-inner {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            font-size: 0.85rem;
+        }
+
+        .hexagon:hover:not(.revealed):not(.vanished) {
+            transform: scale(1.08);
+            background-color: var(--brand-rose);
+        }
+
+        .hexagon.revealed {
+            background-color: white;
+            color: var(--brand-midnight);
+            cursor: default;
+            transform: scale(1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+        }
+
+        .hexagon.revealed .content-inner {
+            opacity: 1;
+        }
+
+        .hexagon.vanished {
+            opacity: 0;
+            transform: scale(0.1);
+            pointer-events: none;
+        }
+
+        .hexagon b {
+            display: block;
+            color: var(--brand-purple);
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        /* 4-3-4 GRID POSITIONING */
+        .pos-0 { top: 0px; left: 50px; }
+        .pos-1 { top: 0px; left: 260px; }
+        .pos-2 { top: 0px; left: 470px; }
+        .pos-3 { top: 0px; left: 680px; }
+
+        .pos-4 { top: 160px; left: 155px; }
+        .pos-5 { top: 160px; left: 365px; }
+        .pos-6 { top: 160px; left: 575px; }
+
+        .pos-7 { top: 320px; left: 50px; }
+        .pos-8 { top: 320px; left: 260px; }
+        .pos-9 { top: 320px; left: 470px; }
+        .pos-10 { top: 320px; left: 680px; }
+
+        /* Centered Next Button */
+        #next-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-large-next {
+            background-color: var(--brand-purple);
+            color: white;
+            padding: 25px 80px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            transition: all 0.3s ease;
+            box-shadow: 0 15px 35px rgba(81, 56, 115, 0.4);
+            border: 4px solid white;
+        }
+
+        .btn-large-next:hover {
+            background-color: var(--brand-midnight);
+            transform: scale(1.05);
+        }
+
+        /* Progress Bar Styles */
+        .progress-container {
+            width: 100%;
+            max-width: 400px;
+            height: 6px;
+            background-color: var(--brand-lavender);
+            border-radius: 10px;
+            margin: 15px auto;
+            overflow: hidden;
+            opacity: 0.8;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--brand-purple);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(65, 54, 89, 0.96);
+            backdrop-filter: blur(10px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 2rem;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            border-top: 12px solid var(--brand-purple);
+        }
+    </style>
+</head>
+<body class="py-10">
+
+    <div class="w-full max-w-7xl px-4 flex flex-col items-center">
+        <div class="text-center">
+            <h1 id="page-title" class="text-4xl font-black mb-2 uppercase tracking-tight" style="color: var(--brand-purple);">Separation and Leaving</h1>
+            <p id="page-desc" class="text-lg text-gray-600 max-w-2xl mx-auto italic">Find and reveal the 5 key risks hidden in the honeycombs.</p>
+            
+            <!-- Progress Line Bar -->
+            <div class="progress-container">
+                <div id="progress-line" class="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- The Honeycomb Discovery Area -->
+        <div class="hive-viewport" id="hive-container">
+            <!-- Hexagons injected via JS -->
+
+            <!-- Centered Next Button -->
+            <div id="next-container" class="opacity-0 pointer-events-none transition-all duration-700 scale-75">
+                <button id="next-btn" class="btn-large-next" onclick="nextPage()">Next Activity</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Summary Modal -->
+    <div id="modal">
+        <div class="modal-card shadow-2xl">
+            <div class="text-6xl mb-6">⚠️</div>
+            <h2 class="text-3xl font-black mb-6" style="color: var(--brand-purple);">Important Note</h2>
+            <p id="modal-text" class="text-xl text-gray-700 leading-relaxed italic mb-10"></p>
+            <button onclick="location.reload()" class="w-full py-4 text-white rounded-xl font-bold uppercase tracking-widest" style="background-color: var(--brand-midnight)">Restart Activity</button>
+        </div>
+    </div>
+
+    <script>
+        const pages = [
+            {
+                title: "Separation and Leaving",
+                desc: "Find and reveal the 5 key risks hidden in the honeycombs.",
+                hexagons: [
+                    { type: 'content', heading: "Power Shift", text: "Abusers often escalate violence to force a partner to stay or punish them for leaving." },
+                    { type: 'filler', text: "Not here!" },
+                    { type: 'content', heading: "Danger Window", text: "The highest risk occurs during the first 3 to 6 months after a couple separates." },
+                    { type: 'filler', text: "Empty" },
+                    { type: 'content', heading: "Workplace Targets", text: "When home is inaccessible, the perpetrator often targets the workplace." },
+                    { type: 'filler', text: "Try again" },
+                    { type: 'content', heading: "Resistance", text: "Leaving is a brave act of resistance that challenges dominance." },
+                    { type: 'blank', text: "Blank" },
+                    { type: 'content', heading: "Stalking", text: "Abusers often monitor victims at their new home or workplace." },
+                    { type: 'filler', text: "Missed" },
+                    { type: 'filler', text: "Keep looking" }
+                ]
+            },
+            {
+                title: "Legal Actions & Court",
+                desc: "Find the 5 key risks associated with legal intervention.",
+                hexagons: [
+                    { type: 'content', heading: "AVO Triggers", text: "Serving an AVO is often seen as a loss of control, leading to retaliation." },
+                    { type: 'filler', text: "Wrong one" },
+                    { type: 'content', heading: "Family Court", text: "Disputes over children are high-risk as the abuser loses a key control tool." },
+                    { type: 'filler', text: "Not here" },
+                    { type: 'content', heading: "Independence", text: "New bank accounts or phone numbers can cause an abuser to lash out." },
+                    { type: 'blank', text: "Empty" },
+                    { type: 'content', heading: "Legal Escalation", text: "Formal legal steps are viewed by the perpetrator as challenges to their power." },
+                    { type: 'filler', text: "Try another" },
+                    { type: 'content', heading: "Custody Fears", text: "Fear of losing access to children causes spikes in aggressive behaviour." },
+                    { type: 'filler', text: "Blank" },
+                    { type: 'filler', text: "Nothing" }
+                ]
+            }
+        ];
+
+        let currentPage = 0;
+        let revealedContentCount = 0;
+        let totalContentOnPage = 5;
+
+        function renderPage() {
+            const data = pages[currentPage];
+            document.getElementById('page-title').innerText = data.title;
+            document.getElementById('page-desc').innerText = data.desc;
+            
+            const contentItems = data.hexagons.filter(h => h.type === 'content');
+            totalContentOnPage = contentItems.length;
+
+            updateProgress();
+
+            const nextCont = document.getElementById('next-container');
+            nextCont.classList.add('opacity-0', 'pointer-events-none', 'scale-75');
+
+            revealedContentCount = 0;
+            const container = document.getElementById('hive-container');
+            
+            const existingHexagons = container.querySelectorAll('.hexagon');
+            existingHexagons.forEach(h => h.remove());
+
+            data.hexagons.forEach((item, index) => {
+                const hex = document.createElement('div');
+                hex.className = `hexagon pos-${index}`;
+                
+                const inner = document.createElement('div');
+                inner.className = 'content-inner';
+                
+                if (item.type === 'content') {
+                    inner.innerHTML = `<b>${item.heading}</b>${item.text}`;
+                } else {
+                    inner.innerText = item.text || "Empty";
+                }
+                
+                hex.appendChild(inner);
+
+                hex.onclick = function() {
+                    if (this.classList.contains('revealed') || this.classList.contains('vanished')) return;
+
+                    if (item.type === 'content') {
+                        this.classList.add('revealed');
+                        revealedContentCount++;
+                        updateProgress();
+                        checkCompletion();
+                    } else {
+                        this.classList.add('vanished');
+                    }
+                };
+                container.appendChild(hex);
+            });
+        }
+
+        function updateProgress() {
+            const progressLine = document.getElementById('progress-line');
+            const percent = (revealedContentCount / totalContentOnPage) * 100;
+            progressLine.style.width = percent + '%';
+        }
+
+        function checkCompletion() {
+            if (revealedContentCount === totalContentOnPage) {
+                const nextCont = document.getElementById('next-container');
+                nextCont.classList.remove('opacity-0', 'pointer-events-none', 'scale-75');
+                nextCont.classList.add('scale-100');
+                
+                const btn = document.getElementById('next-btn');
+                if (currentPage === pages.length - 1) {
+                    btn.innerText = "Finish and Summary";
+                } else {
+                    btn.innerText = "Next Stage";
+                }
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < pages.length - 1) {
+                currentPage++;
+                renderPage();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showFinalModal();
+            }
+        }
+
+        function showFinalModal() {
+            const modal = document.getElementById('modal');
+            const modalText = document.getElementById('modal-text');
+            modalText.innerText = "Leaving an abusive relationship is an act of resistance, but it is also the time of greatest danger.";
+            modal.style.display = 'flex';
+        }
+
+        renderPage();
+    </script>
+</body>
+</html>
