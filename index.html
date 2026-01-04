@@ -16,7 +16,7 @@
 
         body {
             background-color: var(--brand-grey);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Helvetica', 'Arial', sans-serif;
             color: var(--brand-midnight);
             overflow-x: hidden;
             margin: 0;
@@ -183,7 +183,7 @@
     <div class="w-full max-w-7xl px-4 flex flex-col items-center">
         <div class="text-center">
             <h1 id="page-title" class="text-4xl font-black mb-2 uppercase tracking-tight" style="color: var(--brand-purple);">Separation and Leaving</h1>
-            <p id="page-desc" class="text-lg text-gray-600 max-w-2xl mx-auto italic">Find and reveal the 5 key risks hidden in the honeycombs.</p>
+            <p id="page-desc" class="text-lg text-gray-600 max-w-2xl mx-auto italic">Select the honeycombs to reveal the 5 key risks.</p>
             
             <!-- Progress Line Bar -->
             <div class="progress-container">
@@ -197,7 +197,7 @@
 
             <!-- Centered Next Button -->
             <div id="next-container" class="opacity-0 pointer-events-none transition-all duration-700 scale-75">
-                <button id="next-btn" class="btn-large-next" onclick="nextPage()">Next Activity</button>
+                <button id="next-btn" class="btn-large-next" onclick="nextPage()">Next Stage</button>
             </div>
         </div>
     </div>
@@ -216,7 +216,7 @@
         const pages = [
             {
                 title: "Separation and Leaving",
-                desc: "Find and reveal the 5 key risks hidden in the honeycombs.",
+                desc: "Select the honeycombs to reveal the 5 key risks.",
                 hexagons: [
                     { type: 'content', heading: "Power Shift", text: "Abusers often escalate violence to force a partner to stay or punish them for leaving." },
                     { type: 'filler', text: "Not here!" },
@@ -233,7 +233,7 @@
             },
             {
                 title: "Legal Actions & Court",
-                desc: "Find the 5 key risks associated with legal intervention.",
+                desc: "Select the honeycombs to reveal the 5 key risks.",
                 hexagons: [
                     { type: 'content', heading: "AVO Triggers", text: "Serving an AVO is often seen as a loss of control, leading to retaliation." },
                     { type: 'filler', text: "Wrong one" },
