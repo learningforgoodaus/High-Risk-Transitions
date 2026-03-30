@@ -16,7 +16,7 @@
 
         body {
             background-color: var(--brand-grey);
-            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--brand-midnight);
             overflow-x: hidden;
             margin: 0;
@@ -26,36 +26,40 @@
             min-height: 100vh;
         }
 
-        /* REVISED HONEYCOMB MATH:
-           Hex Width: 220px | Hex Height: 240px
-           
-           Horizontal Gap: 12px -> Step X = 232px
-           Vertical Step: To prevent "crowding" and match the visual gap, 
-           we move Row 2 down by 200px instead of 180px.
-        */
+        /* -------------------------------------
+           MOBILE-FIRST BASE STYLES (Cards/Grid) 
+           ------------------------------------- */
         .hive-viewport {
             position: relative;
             width: 100%;
-            max-width: 960px;
-            height: 660px; /* Increased to fit the new spacing */
-            margin: 20px auto;
+            max-width: 950px;
+            margin: 10px auto;
+            
+            /* Mobile Grid Setup */
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 0 15px 120px 15px; /* Extra bottom padding for floating button */
         }
 
         .hexagon {
-            width: 220px;
-            height: 240px;
             background-color: var(--brand-lavender);
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            position: absolute;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 32px;
+            padding: 20px 15px;
             user-select: none;
             z-index: 10;
+            
+            /* Mobile Card Look */
+            position: relative;
+            width: 100%;
+            min-height: 130px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
         .hexagon .content-inner {
@@ -63,14 +67,11 @@
             transition: opacity 0.3s ease;
             pointer-events: none;
             font-size: 0.9rem;
-            line-height: 1.35;
-            hyphens: auto;
-            word-wrap: break-word;
-            max-width: 100%;
+            line-height: 1.4;
         }
 
         .hexagon:hover:not(.revealed):not(.vanished) {
-            transform: scale(1.04);
+            transform: scale(1.03);
             background-color: var(--brand-rose);
         }
 
@@ -79,7 +80,8 @@
             color: var(--brand-midnight);
             cursor: default;
             transform: scale(1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 2px solid var(--brand-purple);
         }
 
         .hexagon.revealed .content-inner {
@@ -88,94 +90,75 @@
 
         .hexagon.vanished {
             opacity: 0;
-            transform: scale(0.1);
+            transform: scale(0.8);
             pointer-events: none;
         }
 
         .hexagon b {
             display: block;
             color: var(--brand-purple);
-            font-size: 1.1rem;
-            margin-bottom: 8px;
+            font-size: 1rem;
+            margin-bottom: 6px;
             font-weight: 900;
             text-transform: uppercase;
-            line-height: 1.1;
         }
 
-        /* COORDINATE SYSTEM:
-           Row 1: top 0
-           Row 2: top 200 (Increases "horizontal" separation)
-           Row 3: top 400
-           
-           Column Offset: 232px
-           Stagger: 116px
-        */
-        
-        /* Row 1 */
-        .pos-0 { top: 0px; left: 15px; }
-        .pos-1 { top: 0px; left: 247px; }
-        .pos-2 { top: 0px; left: 479px; }
-        .pos-3 { top: 0px; left: 711px; }
-
-        /* Row 2 (Staggered) */
-        .pos-4 { top: 200px; left: 131px; }
-        .pos-5 { top: 200px; left: 363px; }
-        .pos-6 { top: 200px; left: 595px; }
-
-        /* Row 3 */
-        .pos-7 { top: 400px; left: 15px; }
-        .pos-8 { top: 400px; left: 247px; }
-        .pos-9 { top: 400px; left: 479px; }
-        .pos-10 { top: 400px; left: 711px; }
-
+        /* Next Button - Mobile Fixed Bottom */
         #next-container {
-            margin: 20px 0 80px 0;
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 100;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 90%;
+            max-width: 400px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #next-container.hidden-btn {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-50%) translateY(20px);
+        }
+
+        #next-container.visible-btn {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
         }
 
         .btn-large-next {
             background-color: var(--brand-purple);
             color: white;
-            padding: 20px 60px;
+            padding: 16px 20px;
             border-radius: 12px;
             font-weight: 900;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             transition: all 0.3s ease;
-            box-shadow: 0 15px 35px rgba(81, 56, 115, 0.4);
-            border: 4px solid white;
-            white-space: nowrap;
+            box-shadow: 0 10px 25px rgba(81, 56, 115, 0.5);
+            border: 3px solid white;
+            width: 100%;
         }
 
         .btn-large-next:hover {
             background-color: var(--brand-midnight);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(81, 56, 115, 0.5);
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-            100% { transform: scale(1); }
-        }
-
-        .pulse-active {
-            animation: pulse 2s infinite ease-in-out;
-        }
-
+        /* Progress Bar Styles */
         .progress-container {
             width: 100%;
             max-width: 400px;
-            height: 8px;
+            height: 6px;
             background-color: var(--brand-lavender);
             border-radius: 10px;
-            margin: 20px auto;
+            margin: 15px auto;
             overflow: hidden;
+            opacity: 0.8;
         }
 
         .progress-bar {
@@ -194,47 +177,140 @@
             z-index: 200;
             align-items: center;
             justify-content: center;
-            padding: 20px;
         }
 
         .modal-card {
             background: white;
-            padding: 3rem;
-            border-radius: 2rem;
+            padding: 2.5rem 1.5rem;
+            border-radius: 1.5rem;
             max-width: 600px;
-            width: 100%;
+            width: 90%;
             text-align: center;
-            border-top: 12px solid var(--brand-purple);
+            border-top: 10px solid var(--brand-purple);
+        }
+
+        /* Tablet Grid Adjustments */
+        @media (min-width: 600px) and (max-width: 899px) {
+            .hive-viewport {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* -------------------------------------
+           DESKTOP STYLES (4-3-4 Honeycomb) 
+           ------------------------------------- */
+        @media (min-width: 900px) {
+            .hive-viewport {
+                display: block; /* Remove grid */
+                height: 580px;
+                padding: 0;
+            }
+
+            .hexagon {
+                position: absolute;
+                width: 180px;
+                height: 200px;
+                border-radius: 0;
+                box-shadow: none;
+                clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            }
+
+            .hexagon .content-inner {
+                font-size: 0.85rem;
+            }
+
+            .hexagon:hover:not(.revealed):not(.vanished) {
+                transform: scale(1.08);
+            }
+
+            .hexagon.revealed {
+                border: none; /* remove border on desktop */
+            }
+
+            .hexagon.vanished {
+                transform: scale(0.1); /* Shrink instead of fade out completely */
+            }
+
+            /* 4-3-4 GRID POSITIONING */
+            .pos-0 { top: 0px; left: 50px; }
+            .pos-1 { top: 0px; left: 260px; }
+            .pos-2 { top: 0px; left: 470px; }
+            .pos-3 { top: 0px; left: 680px; }
+
+            .pos-4 { top: 160px; left: 155px; }
+            .pos-5 { top: 160px; left: 365px; }
+            .pos-6 { top: 160px; left: 575px; }
+
+            .pos-7 { top: 320px; left: 50px; }
+            .pos-8 { top: 320px; left: 260px; }
+            .pos-9 { top: 320px; left: 470px; }
+            .pos-10 { top: 320px; left: 680px; }
+
+            /* Next Button - Centered on Desktop */
+            #next-container {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                bottom: auto;
+                transform: translate(-50%, -50%);
+                width: auto;
+            }
+
+            #next-container.hidden-btn {
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+
+            #next-container.visible-btn {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            .btn-large-next {
+                padding: 25px 80px;
+                font-size: 1.5rem;
+                letter-spacing: 4px;
+                border-width: 4px;
+                width: auto;
+            }
+
+            .modal-card {
+                padding: 3rem;
+                border-radius: 2rem;
+                border-top-width: 12px;
+            }
         }
     </style>
 </head>
-<body class="py-10">
+<body class="py-8 md:py-10">
 
     <div class="w-full max-w-7xl px-4 flex flex-col items-center">
-        <div class="text-center mb-4">
-            <h1 id="page-title" class="text-4xl font-black mb-2 uppercase tracking-tight" style="color: var(--brand-purple);">Separation and Leaving</h1>
-            <p id="page-desc" class="text-lg text-gray-600 max-w-2xl mx-auto italic">Select the honeycombs to reveal the 5 key risks.</p>
+        <div class="text-center px-2">
+            <h1 id="page-title" class="text-3xl md:text-4xl font-black mb-2 uppercase tracking-tight" style="color: var(--brand-purple);">Separation and Leaving</h1>
+            <p id="page-desc" class="text-base md:text-lg text-gray-600 max-w-2xl mx-auto italic">Find and reveal the 5 key risks hidden in the honeycombs.</p>
             
+            <!-- Progress Line Bar -->
             <div class="progress-container">
                 <div id="progress-line" class="progress-bar"></div>
             </div>
         </div>
 
+        <!-- The Content Area -->
         <div class="hive-viewport" id="hive-container">
-            <!-- Hexagons injected via JS -->
+            <!-- Items injected via JS -->
         </div>
 
-        <div id="next-container" class="opacity-0 pointer-events-none scale-75">
-            <button id="next-btn" class="btn-large-next" onclick="nextPage()">Next Stage</button>
+        <!-- Next Button (Moves automatically via CSS) -->
+        <div id="next-container" class="hidden-btn">
+            <button id="next-btn" class="btn-large-next" onclick="nextPage()">Next Activity</button>
         </div>
     </div>
 
+    <!-- Final Summary Modal -->
     <div id="modal">
         <div class="modal-card shadow-2xl">
-            <div class="text-6xl mb-6">⚠️</div>
-            <h2 class="text-3xl font-black mb-6" style="color: var(--brand-purple);">Important Note</h2>
-            <p id="modal-text" class="text-xl text-gray-700 leading-relaxed italic mb-10"></p>
-            <button onclick="location.reload()" class="w-full py-4 text-white rounded-xl font-bold uppercase tracking-widest" style="background-color: var(--brand-midnight)">Restart Activity</button>
+            <div class="text-5xl md:text-6xl mb-4 md:mb-6">⚠️</div>
+            <h2 class="text-2xl md:text-3xl font-black mb-4 md:mb-6" style="color: var(--brand-purple);">Important Note</h2>
+            <p id="modal-text" class="text-lg md:text-xl text-gray-700 leading-relaxed italic mb-8 md:mb-10"></p>
+            <button onclick="location.reload()" class="w-full py-4 text-white rounded-xl font-bold uppercase tracking-widest text-sm md:text-base" style="background-color: var(--brand-midnight)">Restart Activity</button>
         </div>
     </div>
 
@@ -242,7 +318,7 @@
         const pages = [
             {
                 title: "Separation and Leaving",
-                desc: "Select the honeycombs to reveal the 5 key risks.",
+                desc: "Find and reveal the 5 key risks hidden below.",
                 hexagons: [
                     { type: 'content', heading: "Power Shift", text: "Abusers often escalate violence to force a partner to stay or punish them for leaving." },
                     { type: 'filler', text: "Not here!" },
@@ -259,7 +335,7 @@
             },
             {
                 title: "Legal Actions & Court",
-                desc: "Select the honeycombs to reveal the 5 key risks.",
+                desc: "Find the 5 key risks associated with legal intervention.",
                 hexagons: [
                     { type: 'content', heading: "AVO Triggers", text: "Serving an AVO is often seen as a loss of control, leading to retaliation." },
                     { type: 'filler', text: "Wrong one" },
@@ -290,9 +366,10 @@
 
             updateProgress();
 
+            // Hide the next button on fresh page render using new custom classes
             const nextCont = document.getElementById('next-container');
-            nextCont.classList.add('opacity-0', 'pointer-events-none', 'scale-75');
-            nextCont.classList.remove('pulse-active');
+            nextCont.classList.remove('visible-btn');
+            nextCont.classList.add('hidden-btn');
 
             revealedContentCount = 0;
             const container = document.getElementById('hive-container');
@@ -340,8 +417,8 @@
         function checkCompletion() {
             if (revealedContentCount === totalContentOnPage) {
                 const nextCont = document.getElementById('next-container');
-                nextCont.classList.remove('opacity-0', 'pointer-events-none', 'scale-75');
-                nextCont.classList.add('scale-100', 'pulse-active');
+                nextCont.classList.remove('hidden-btn');
+                nextCont.classList.add('visible-btn');
                 
                 const btn = document.getElementById('next-btn');
                 if (currentPage === pages.length - 1) {
@@ -349,10 +426,6 @@
                 } else {
                     btn.innerText = "Next Stage";
                 }
-
-                setTimeout(() => {
-                    nextCont.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }, 300);
             }
         }
 
