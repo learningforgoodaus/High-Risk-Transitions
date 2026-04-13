@@ -34,12 +34,10 @@
             width: 100%;
             max-width: 950px;
             margin: 10px auto;
-            
-            /* Mobile Grid Setup */
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            padding: 0 15px 120px 15px; /* Extra bottom padding for floating button */
+            padding: 0 15px 120px 15px; 
         }
 
         .hexagon {
@@ -53,8 +51,6 @@
             padding: 20px 15px;
             user-select: none;
             z-index: 10;
-            
-            /* Mobile Card Look */
             position: relative;
             width: 100%;
             min-height: 130px;
@@ -103,6 +99,17 @@
             text-transform: uppercase;
         }
 
+        /* Mobile specific instruction logic via CSS content */
+        #page-desc::after {
+            content: "Find and reveal the 5 key risks hidden in the honeycombs.";
+        }
+
+        @media (max-width: 899px) {
+            #page-desc::after {
+                content: "Tap to find and reveal the 5 key risks hidden below";
+            }
+        }
+
         /* Next Button - Mobile Fixed Bottom */
         #next-container {
             position: fixed;
@@ -149,7 +156,6 @@
             background-color: var(--brand-midnight);
         }
 
-        /* Progress Bar Styles */
         .progress-container {
             width: 100%;
             max-width: 400px;
@@ -189,7 +195,6 @@
             border-top: 10px solid var(--brand-purple);
         }
 
-        /* Tablet Grid Adjustments */
         @media (min-width: 600px) and (max-width: 899px) {
             .hive-viewport {
                 grid-template-columns: repeat(3, 1fr);
@@ -201,7 +206,7 @@
            ------------------------------------- */
         @media (min-width: 900px) {
             .hive-viewport {
-                display: block; /* Remove grid */
+                display: block; 
                 height: 580px;
                 padding: 0;
             }
@@ -224,29 +229,25 @@
             }
 
             .hexagon.revealed {
-                border: none; /* remove border on desktop */
+                border: none;
             }
 
             .hexagon.vanished {
-                transform: scale(0.1); /* Shrink instead of fade out completely */
+                transform: scale(0.1);
             }
 
-            /* 4-3-4 GRID POSITIONING */
             .pos-0 { top: 0px; left: 50px; }
             .pos-1 { top: 0px; left: 260px; }
             .pos-2 { top: 0px; left: 470px; }
             .pos-3 { top: 0px; left: 680px; }
-
             .pos-4 { top: 160px; left: 155px; }
             .pos-5 { top: 160px; left: 365px; }
             .pos-6 { top: 160px; left: 575px; }
-
             .pos-7 { top: 320px; left: 50px; }
             .pos-8 { top: 320px; left: 260px; }
             .pos-9 { top: 320px; left: 470px; }
             .pos-10 { top: 320px; left: 680px; }
 
-            /* Next Button - Centered on Desktop */
             #next-container {
                 position: absolute;
                 top: 50%;
@@ -285,26 +286,20 @@
     <div class="w-full max-w-7xl px-4 flex flex-col items-center">
         <div class="text-center px-2">
             <h1 id="page-title" class="text-3xl md:text-4xl font-black mb-2 uppercase tracking-tight" style="color: var(--brand-purple);">Separation and Leaving</h1>
-            <p id="page-desc" class="text-base md:text-lg text-gray-600 max-w-2xl mx-auto italic">Find and reveal the 5 key risks hidden in the honeycombs.</p>
+            <p id="page-desc" class="text-base md:text-lg text-gray-600 max-w-2xl mx-auto italic"></p>
             
-            <!-- Progress Line Bar -->
             <div class="progress-container">
                 <div id="progress-line" class="progress-bar"></div>
             </div>
         </div>
 
-        <!-- The Content Area -->
-        <div class="hive-viewport" id="hive-container">
-            <!-- Items injected via JS -->
-        </div>
+        <div class="hive-viewport" id="hive-container"></div>
 
-        <!-- Next Button (Moves automatically via CSS) -->
         <div id="next-container" class="hidden-btn">
             <button id="next-btn" class="btn-large-next" onclick="nextPage()">Next Activity</button>
         </div>
     </div>
 
-    <!-- Final Summary Modal -->
     <div id="modal">
         <div class="modal-card shadow-2xl">
             <div class="text-5xl md:text-6xl mb-4 md:mb-6">⚠️</div>
@@ -318,7 +313,6 @@
         const pages = [
             {
                 title: "Separation and Leaving",
-                desc: "Find and reveal the 5 key risks hidden below.",
                 hexagons: [
                     { type: 'content', heading: "Power Shift", text: "Abusers often escalate violence to force a partner to stay or punish them for leaving." },
                     { type: 'filler', text: "Not here!" },
@@ -335,7 +329,6 @@
             },
             {
                 title: "Legal Actions & Court",
-                desc: "Find the 5 key risks associated with legal intervention.",
                 hexagons: [
                     { type: 'content', heading: "AVO Triggers", text: "Serving an AVO is often seen as a loss of control, leading to retaliation." },
                     { type: 'filler', text: "Wrong one" },
@@ -356,28 +349,36 @@
         let revealedContentCount = 0;
         let totalContentOnPage = 5;
 
+        // Shuffle function to randomize positions
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
         function renderPage() {
             const data = pages[currentPage];
             document.getElementById('page-title').innerText = data.title;
-            document.getElementById('page-desc').innerText = data.desc;
             
-            const contentItems = data.hexagons.filter(h => h.type === 'content');
+            // Randomize the items for this specific render
+            const shuffledHexagons = shuffleArray([...data.hexagons]);
+
+            const contentItems = shuffledHexagons.filter(h => h.type === 'content');
             totalContentOnPage = contentItems.length;
 
             updateProgress();
 
-            // Hide the next button on fresh page render using new custom classes
             const nextCont = document.getElementById('next-container');
             nextCont.classList.remove('visible-btn');
             nextCont.classList.add('hidden-btn');
 
             revealedContentCount = 0;
             const container = document.getElementById('hive-container');
-            
-            const existingHexagons = container.querySelectorAll('.hexagon');
-            existingHexagons.forEach(h => h.remove());
+            container.innerHTML = '';
 
-            data.hexagons.forEach((item, index) => {
+            shuffledHexagons.forEach((item, index) => {
                 const hex = document.createElement('div');
                 hex.className = `hexagon pos-${index}`;
                 
